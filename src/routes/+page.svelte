@@ -1,10 +1,34 @@
 <script lang="ts">
-	import type { UserInfo } from './+page.server';
+	import { onMount } from 'svelte';
 	import { Avatar } from '@skeletonlabs/skeleton';
+	import { api, TEAM_INFO_URL, USER_INFO_URL } from '$lib/util';
 
-	export let data: { users: UserInfo[] };
+	let users: UserInfo[] = [];
 
-	$: users = data.users;
+	type UserInfo = {
+		public_name: string;
+		distance: number;
+		steps: number;
+		profile_photo_url: string;
+	};
+
+	onMount(async () => {
+		const info = (await api.get(TEAM_INFO_URL)).data;
+
+		users = await Promise.all(
+			info.data.users.map(async (u): Promise<UserInfo> => {
+				const user_info = (await api.get<{ data: UserInfo }>(`${USER_INFO_URL}/${u.id}`)).data.data;
+				return {
+					public_name: user_info.public_name,
+					distance: user_info.distance,
+					steps: user_info.steps,
+					profile_photo_url: user_info.profile_photo_url
+				};
+			})
+		);
+
+		users = users.sort((a, b) => b.distance - a.distance);
+	});
 </script>
 
 <div class="container mx-auto space-y-8 p-8">
