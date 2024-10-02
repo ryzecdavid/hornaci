@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { Avatar } from '@skeletonlabs/skeleton';
-	import { api, TEAM_1, TEAM_2, TEAM_INFO_URL, USER_INFO_URL } from '$lib/util';
+	import { api, TEAM_A, TEAM_B, TEAM_INFO_URL, USER_INFO_URL } from '$lib/util';
 
 	let users: UserInfo[] = [];
 	let loading: Promise<UserInfo[]>;
@@ -11,12 +11,13 @@
 		distance: number;
 		steps: number;
 		profile_photo_url: string;
+		teams: { id: number }[];
 	};
 
 	onMount(async () => {
 		const info = [
-			...(await api.get(`${TEAM_INFO_URL}${TEAM_1}`)).data.data.users,
-			...(await api.get(`${TEAM_INFO_URL}${TEAM_2}`)).data.data.users
+			...(await api.get(`${TEAM_INFO_URL}${TEAM_A}`)).data.data.users,
+			...(await api.get(`${TEAM_INFO_URL}${TEAM_B}`)).data.data.users
 		];
 
 		loading = Promise.all(
@@ -26,7 +27,8 @@
 					public_name: user_info.public_name,
 					distance: user_info.distance,
 					steps: user_info.steps,
-					profile_photo_url: user_info.profile_photo_url
+					profile_photo_url: user_info.profile_photo_url,
+					teams: user_info.teams
 				};
 			})
 		);
@@ -63,6 +65,13 @@
 								<span>{user.distance} metrů</span>
 								<span>{user.steps} kroků</span>
 							</dd>
+						</span>
+						<span class="text-5xl">
+							{#if user.teams.some((v) => v.id === TEAM_A)}
+								A
+							{:else if user.teams.some((v) => v.id === TEAM_B)}
+								B
+							{/if}
 						</span>
 					</div>
 				{/each}
