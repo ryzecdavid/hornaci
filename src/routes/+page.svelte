@@ -1,8 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { Avatar } from '@skeletonlabs/skeleton';
-	import { api, TEAM_INFO_URL, USER_INFO_URL } from '$lib/util';
-	import type { UserInfo } from 'os';
+	import { api, TEAM_1, TEAM_2, TEAM_INFO_URL, USER_INFO_URL } from '$lib/util';
 
 	let users: UserInfo[] = [];
 	let loading: Promise<UserInfo[]>;
@@ -15,10 +14,13 @@
 	};
 
 	onMount(async () => {
-		const info = (await api.get(TEAM_INFO_URL)).data;
+		const info = [
+			...(await api.get(`${TEAM_INFO_URL}${TEAM_1}`)).data.data.users,
+			...(await api.get(`${TEAM_INFO_URL}${TEAM_2}`)).data.data.users
+		];
 
 		loading = Promise.all(
-			info.data.users.map(async (u): Promise<UserInfo> => {
+			info.map(async (u): Promise<UserInfo> => {
 				const user_info = (await api.get<{ data: UserInfo }>(`${USER_INFO_URL}/${u.id}`)).data.data;
 				return {
 					public_name: user_info.public_name,
@@ -51,6 +53,7 @@
 			{:then}
 				{#each users as user, i}
 					<div>
+						<span>{i + 1}.</span>
 						<span class="badge">
 							<Avatar src={user.profile_photo_url} />
 						</span>
