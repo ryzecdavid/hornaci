@@ -7,6 +7,7 @@
 	let loading: Promise<UserInfo[]>;
 
 	type UserInfo = {
+		id: string;
 		public_name: string;
 		distance: number;
 		steps: number;
@@ -24,6 +25,7 @@
 			info.map(async (u): Promise<UserInfo> => {
 				const user_info = (await api.get<{ data: UserInfo }>(`${USER_INFO_URL}/${u.id}`)).data.data;
 				return {
+					id: user_info.id,
 					public_name: user_info.public_name,
 					distance: user_info.distance,
 					steps: user_info.steps,
@@ -60,7 +62,7 @@
 							<Avatar src={user.profile_photo_url} />
 						</span>
 						<span class="flex-auto">
-							<dt>{user.public_name}</dt>
+							<dt class:champion={user.id === '41455'}>{user.public_name}</dt>
 							<dd>
 								<span>{user.distance} metrů</span>
 								<span>{user.steps} kroků</span>
@@ -79,3 +81,10 @@
 		</dl>
 	</div>
 </div>
+
+<style>
+	.champion::after,
+	.champion::before {
+		content: '🏆';
+	}
+</style>
