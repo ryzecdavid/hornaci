@@ -5,6 +5,7 @@
 
 	let users: UserInfo[] = [];
 	let loading: Promise<UserInfo[]>;
+	let scale = 1;
 
 	type UserInfo = {
 		id: string;
@@ -38,6 +39,14 @@
 		users = await loading;
 
 		users = users.sort((a, b) => b.distance - a.distance);
+
+		const start = new Date('2024-10-01T00:00:00');
+		const end = new Date('2024-10-31T23:59:59');
+		const now = new Date();
+
+		const ratio = 1 - (end.getTime() - now.getTime()) / (end.getTime() - start.getTime());
+
+		scale = 1 + 0.7 * ratio;
 	});
 </script>
 
@@ -56,7 +65,7 @@
 				</div>
 			{:then}
 				{#each users as user, i}
-					<div>
+					<div style:transform={`scale(${user.id === '41455' ? scale : 1})`}>
 						<span>{i + 1}.</span>
 						<span class="badge">
 							<Avatar src={user.profile_photo_url} />
